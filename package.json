@@ -1,0 +1,24 @@
+{
+    "name": "pmpro-woocommerce",
+    "version": "1.9.0",
+    "description": "WooCommerce Integration with Paid Memberships Pro",
+    "main": "webpack.config.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/strangerstudios/pmpro-woocommerce.git"
+    },
+    "scripts": {
+        "start": "wp-scripts start",
+        "build": "wp-scripts build"
+    },
+    "keywords": [
+        "wordpress",
+        "membership",
+        "pmpro"
+    ],
+    "author": "Stranger Studios",
+    "license": "GPL-2.0",
+    "devDependencies": {
+        "@wordpress/scripts": "^27.4.0"
+    }
+}

@@ -20,6 +20,11 @@ define( 'PMPROWC_BASENAME', plugin_basename( __FILE__ ) );
 require_once( PMPROWC_DIR . '/includes/functions.php' );
 require_once( PMPROWC_DIR . '/includes/admin.php' );
 
+// Used for the new Product Block Editor.
+use Automattic\WooCommerce\Admin\BlockTemplates\BlockTemplateInterface;
+use Automattic\WooCommerce\Admin\Features\ProductBlockEditor\ProductTemplates\ProductFormTemplateInterface;
+use Automattic\WooCommerce\Admin\Features\ProductBlockEditor\ProductTemplates\GroupInterface;
+
 /**
  * Loads modules and globals on init
  */
@@ -1020,3 +1025,52 @@ function pmprowoo_compatible_for_hpos() {
 	}
 }
 add_action( 'before_woocommerce_init', 'pmprowoo_compatible_for_hpos' );
+
+/**
+ * Enqueue Block Editor Assets.
+ */
+function pmprowoo_enqueue_block_editor_assets() {
+    wp_enqueue_script(
+        'text-field-block-script',
+       	plugins_url( 'js/blocks/blocks.build.js', __FILE__ ),
+        array( 'wp-blocks', 'wp-components', 'wp-element', 'wp-data', 'wp-compose' ),
+    );
+}
+add_action( 'enqueue_block_editor_assets', 'pmprowoo_enqueue_block_editor_assets' );
+
+if ( ! function_exists( 'pmprowoo_block_template_register' ) ) {
+	/**
+	 * Add a new block to the template.
+	 */
+	function pmprowoo_block_template_register( BlockTemplateInterface $template ) {
+		if ( $template instanceof ProductFormTemplateInterface && 'simple-product' === $template->get_id() ) {
+			// Insert a new section to the same group as the basic details section.
+			$basic_details = $template->get_section_by_id( 'basic-details' );
+
+			$parent = $basic_details->get_parent();
+
+			if ( $parent instanceof GroupInterface ) {
+				// Note: I want to add right after "Basic details", but there is no order set on the sections.
+				$section = $parent->add_section(
+					[
+						'id'         => 'pmpro-woo-membership',
+						'attributes' => [
+							'title' => __( 'Membership', 'woocommerce' ),
+						]
+					]
+				);
+
+				$section->add_block(
+					[
+						'blockName'  => 'pmprowoo/test',
+						'attributes' => [
+							'text' => 'Hello, World!',
+						],
+					]
+				);
+			}
+		}
+	}
+
+	add_action( 'woocommerce_block_template_register', 'pmprowoo_block_template_register' );
+}
